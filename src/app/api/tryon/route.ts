@@ -28,12 +28,12 @@ async function submitAndPoll(
   const formData = new FormData();
   formData.append(
     "person_images",
-    new Blob([personBuffer], { type: `image/${personExt}` }),
+    new Blob([new Uint8Array(personBuffer)], { type: `image/${personExt}` }),
     `person.${personExt}`
   );
   formData.append(
     "garment_images",
-    new Blob([garmentBuffer], { type: "image/jpeg" }),
+    new Blob([new Uint8Array(garmentBuffer)], { type: "image/jpeg" }),
     "garment.jpg"
   );
 
