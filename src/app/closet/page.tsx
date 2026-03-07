@@ -6,12 +6,13 @@
 
 import { useState, useMemo, useEffect } from "react";
 import Image from "next/image";
-import { Plus, Filter } from "lucide-react";
+import { Plus, Filter, ShoppingBag } from "lucide-react";
 import { Card } from "@/components/ui/Card";
 import { getClosetItems, addClosetItem } from "@/lib/closetStore";
 import type { ClothingCategory, ClothingItem } from "@/types";
 import { AddClothingModal } from "@/components/closet/AddClothingModal";
 import { TryOnModal } from "@/components/tryon/TryOnModal";
+import { getShopSearchUrl } from "@/lib/shopLinks";
 
 const CATEGORIES: { value: ClothingCategory; label: string }[] = [
   { value: "tops", label: "Tops" },
@@ -134,10 +135,12 @@ function ClosetItemCard({
 }) {
   return (
     <Card
-      className="group cursor-pointer overflow-hidden p-0 transition hover:shadow-lg"
-      onClick={onTryOn}
+      className="group overflow-hidden p-0 transition hover:shadow-lg"
     >
-      <div className="relative block w-full aspect-[4/5] bg-surface-100">
+      <div
+        className="relative block w-full aspect-[4/5] bg-surface-100 cursor-pointer"
+        onClick={onTryOn}
+      >
         <Image
           src={item.imageUrl}
           alt={item.name}
@@ -148,7 +151,7 @@ function ClosetItemCard({
         <span className="absolute right-2 top-2 rounded-full bg-white/90 px-2 py-1 text-xs font-medium text-surface-700">
           {item.color}
         </span>
-        <span className="absolute bottom-2 left-2 right-2 rounded-lg bg-brand-600 py-2 text-center text-xs font-semibold text-white shadow-lg">
+        <span className="absolute bottom-2 left-2 right-2 rounded-lg bg-brand-600 py-2 text-center text-xs font-semibold text-white shadow-lg opacity-0 transition group-hover:opacity-100">
           Try On
         </span>
       </div>
@@ -162,6 +165,24 @@ function ClosetItemCard({
             {item.notes}
           </p>
         )}
+        <div className="mt-3 flex items-center gap-2">
+          <button
+            onClick={onTryOn}
+            className="flex-1 rounded-lg bg-brand-600 px-3 py-2 text-xs font-semibold text-white transition hover:bg-brand-700"
+          >
+            Try On
+          </button>
+          <a
+            href={getShopSearchUrl(item)}
+            target="_blank"
+            rel="noopener noreferrer"
+            onClick={(e) => e.stopPropagation()}
+            className="flex items-center gap-1 rounded-lg bg-surface-100 px-3 py-2 text-xs font-medium text-surface-700 transition hover:bg-surface-200"
+          >
+            <ShoppingBag className="h-3.5 w-3.5" />
+            Shop
+          </a>
+        </div>
       </div>
     </Card>
   );

@@ -1,18 +1,20 @@
 /**
  * Virtual Try-On modal
  * Supports user photo upload and real AI try-on via Try-on API
+ * Category-aware tips and retry-aware loading states
  */
 
 "use client";
 
 import { useEffect, useState, useRef } from "react";
-import { X, Upload, Loader2 } from "lucide-react";
+import { X, Upload, Loader2, AlertTriangle, RefreshCw, ShoppingBag } from "lucide-react";
 import {
   getUserPhoto,
   setUserPhoto,
   clearUserPhoto,
 } from "@/lib/userPhotoStore";
-import type { ClothingItem } from "@/types";
+import type { ClothingItem, ClothingCategory } from "@/types";
+import { getShopSearchUrl } from "@/lib/shopLinks";
 
 interface TryOnModalProps {
   item: ClothingItem | null;
@@ -20,18 +22,56 @@ interface TryOnModalProps {
   onClose: () => void;
 }
 
+const TRYON_SUPPORTED: ClothingCategory[] = [
+  "tops",
+  "bottoms",
+  "dresses",
+  "outerwear",
+];
+
+function getCategoryTip(category: ClothingCategory): string | null {
+  switch (category) {
+    case "tops":
+      return "Works best with front-facing photos in simple clothing.";
+    case "bottoms":
+      return "Full-body photo recommended. Results vary with skirts vs pants.";
+    case "dresses":
+      return "Full-body photo required. May take longer and need a retry.";
+    case "outerwear":
+      return "Works best over simple tops. May need a retry for complex layers.";
+    case "shoes":
+    case "accessories":
+      return null;
+    default:
+      return null;
+  }
+}
+
+function getLoadingMessage(category: ClothingCategory): string {
+  if (category === "dresses" || category === "outerwear") {
+    return "This can take 1–2 minutes for complex items";
+  }
+  return "This can take 30–90 seconds";
+}
+
 export function TryOnModal({ item, open, onClose }: TryOnModalProps) {
   const [userPhoto, setUserPhotoState] = useState<string | null>(null);
   const [aiResult, setAiResult] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [attemptCount, setAttemptCount] = useState(0);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const canTryOn =
+    item && TRYON_SUPPORTED.includes(item.category);
+  const categoryTip = item ? getCategoryTip(item.category) : null;
 
   useEffect(() => {
     if (!open) return;
     setUserPhotoState(getUserPhoto());
     setAiResult(null);
     setError(null);
+    setAttemptCount(0);
   }, [open, item?.id]);
 
   useEffect(() => {
@@ -52,6 +92,7 @@ export function TryOnModal({ item, open, onClose }: TryOnModalProps) {
       setUserPhoto(dataUrl);
       setUserPhotoState(dataUrl);
       setAiResult(null);
+      setError(null);
     };
     reader.readAsDataURL(file);
     e.target.value = "";
@@ -61,6 +102,7 @@ export function TryOnModal({ item, open, onClose }: TryOnModalProps) {
     clearUserPhoto();
     setUserPhotoState(null);
     setAiResult(null);
+    setError(null);
   };
 
   const handleTryOn = async () => {
@@ -81,6 +123,7 @@ export function TryOnModal({ item, open, onClose }: TryOnModalProps) {
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || "Try-on failed");
       setAiResult(data.url);
+      setAttemptCount(data.attempt || 1);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Try-on failed");
     } finally {
@@ -125,10 +168,10 @@ export function TryOnModal({ item, open, onClose }: TryOnModalProps) {
                   Upload your photo to try on
                 </p>
                 <p className="mt-1 text-sm text-surface-500">
-                  Full-body or upper-body works best (3:4 ratio ideal)
+                  Full-body, front-facing, good lighting
                 </p>
                 <p className="mt-2 text-xs text-surface-400">
-                  Tip: Simple outfit, no accessories (stoles, scarves), front-facing
+                  Simple outfit, no accessories (stoles, scarves)
                 </p>
                 <input
                   ref={fileInputRef}
@@ -138,10 +181,20 @@ export function TryOnModal({ item, open, onClose }: TryOnModalProps) {
                   className="hidden"
                 />
               </div>
+
+              {!canTryOn && (
+                <div className="flex items-start gap-2 rounded-lg bg-amber-50 p-3 text-sm text-amber-700">
+                  <AlertTriangle className="mt-0.5 h-4 w-4 flex-shrink-0" />
+                  <p>
+                    Virtual try-on works best with tops, bottoms, dresses, and
+                    outerwear. {item.category === "shoes" ? "Shoes" : "Accessories"} are
+                    not supported yet.
+                  </p>
+                </div>
+              )}
             </div>
           ) : (
             <div className="space-y-4">
-              {/* Result or preview */}
               <div className="relative mx-auto aspect-[3/4] max-w-[280px] overflow-hidden rounded-xl bg-surface-100">
                 {aiResult ? (
                   <>
@@ -152,7 +205,7 @@ export function TryOnModal({ item, open, onClose }: TryOnModalProps) {
                       onError={() => setError("Could not load result image")}
                     />
                     <span className="absolute bottom-2 left-2 rounded bg-black/60 px-2 py-1 text-xs text-white">
-                      AI result
+                      AI result{attemptCount > 1 ? ` (attempt ${attemptCount})` : ""}
                     </span>
                   </>
                 ) : (
@@ -170,8 +223,14 @@ export function TryOnModal({ item, open, onClose }: TryOnModalProps) {
                         Putting it on you...
                       </p>
                       <p className="text-xs opacity-80">
-                        This can take 30–90 seconds
+                        {getLoadingMessage(item.category)}
                       </p>
+                      {(item.category === "dresses" ||
+                        item.category === "outerwear") && (
+                        <p className="text-xs opacity-60">
+                          Auto-retries if first attempt fails
+                        </p>
+                      )}
                     </div>
                   </div>
                 )}
@@ -183,15 +242,20 @@ export function TryOnModal({ item, open, onClose }: TryOnModalProps) {
                 </div>
               )}
 
-              {aiResult && (
+              {categoryTip && !aiResult && !isLoading && !error && (
                 <p className="text-center text-xs text-surface-500">
-                  Result not right? Try a simpler photo—plain top, front-facing, no accessories.
+                  {categoryTip}
                 </p>
               )}
 
-              {/* Actions */}
+              {aiResult && (
+                <p className="text-center text-xs text-surface-500">
+                  Result not right? Try a different photo or tap &ldquo;Try again&rdquo;.
+                </p>
+              )}
+
               <div className="flex flex-wrap items-center justify-center gap-2">
-                {!aiResult && !isLoading && (
+                {!aiResult && !isLoading && canTryOn && (
                   <button
                     onClick={handleTryOn}
                     className="flex items-center gap-2 rounded-xl bg-brand-600 px-6 py-3 font-semibold text-white transition hover:bg-brand-700"
@@ -199,14 +263,23 @@ export function TryOnModal({ item, open, onClose }: TryOnModalProps) {
                     Try on with AI
                   </button>
                 )}
+
+                {!aiResult && !isLoading && !canTryOn && (
+                  <div className="flex items-center gap-2 rounded-xl bg-surface-200 px-6 py-3 font-semibold text-surface-500">
+                    Try-on not available for {item.category}
+                  </div>
+                )}
+
                 {aiResult && (
                   <button
                     onClick={() => {
                       setAiResult(null);
+                      setAttemptCount(0);
                       handleTryOn();
                     }}
                     className="flex items-center gap-2 rounded-lg bg-surface-100 px-4 py-2 text-sm font-medium text-surface-700 hover:bg-surface-200"
                   >
+                    <RefreshCw className="h-4 w-4" />
                     Try again
                   </button>
                 )}
@@ -237,11 +310,20 @@ export function TryOnModal({ item, open, onClose }: TryOnModalProps) {
           <div className="mt-6 space-y-2 text-center">
             <h3 className="font-semibold text-surface-900">{item.name}</h3>
             <p className="text-sm text-surface-600">
-              {item.category} • {item.color}
+              {item.category} &bull; {item.color}
             </p>
             {item.notes && (
               <p className="text-sm text-surface-500">{item.notes}</p>
             )}
+            <a
+              href={getShopSearchUrl(item)}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="mt-2 inline-flex items-center gap-1.5 rounded-lg bg-surface-100 px-4 py-2 text-sm font-medium text-surface-700 transition hover:bg-surface-200"
+            >
+              <ShoppingBag className="h-4 w-4" />
+              Shop Similar
+            </a>
           </div>
         </div>
       </div>

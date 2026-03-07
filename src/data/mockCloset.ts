@@ -1,21 +1,26 @@
 /**
  * Mock closet data - real clothing images from Unsplash
  * All images are free to use under the Unsplash License
+ *
+ * Images chosen for virtual try-on compatibility:
+ * - Product/flat-lay style preferred over styled/on-model shots
+ * - Minimum 512x682 for try-on API
  */
 
 import type { ClothingItem } from "@/types";
 
-// Try-on API requires garment images >= 512x512
-const U = (id: string) =>
-  `https://images.unsplash.com/photo-${id}?w=512&h=512&fit=crop`;
+// Garment images sized for try-on (3:4 ratio, minimum 512px)
+const U = (id: string, w = 600, h = 800) =>
+  `https://images.unsplash.com/photo-${id}?w=${w}&h=${h}&fit=crop`;
 
 export const MOCK_CLOSET_ITEMS: ClothingItem[] = [
+  // ─── TOPS ──────────────────────────────────────────────
   {
     id: "top-1",
     name: "White Linen Button-Down",
     category: "tops",
     color: "White",
-    imageUrl: U("1720514496194-6544164b4043"),
+    imageUrl: U("1596755094514-f87e34085b2c"),
     notes: "Great for layering, breathable",
     createdAt: "2024-01-15T10:00:00Z",
   },
@@ -24,7 +29,7 @@ export const MOCK_CLOSET_ITEMS: ClothingItem[] = [
     name: "Navy Striped Tee",
     category: "tops",
     color: "Navy",
-    imageUrl: U("1720514496194-6544164b4043"),
+    imageUrl: U("1523381294911-8d4abbe131ef"),
     notes: "Classic Breton style",
     createdAt: "2024-01-16T10:00:00Z",
   },
@@ -51,16 +56,45 @@ export const MOCK_CLOSET_ITEMS: ClothingItem[] = [
     name: "Gray Cashmere Sweater",
     category: "tops",
     color: "Gray",
-    imageUrl: U("1739169585907-f1dc3b9dd0b9"),
+    imageUrl: U("1576566588028-4147f3842f27"),
     notes: "Cozy for cooler evenings",
     createdAt: "2024-01-19T10:00:00Z",
   },
+  {
+    id: "top-6",
+    name: "Olive Henley Tee",
+    category: "tops",
+    color: "Olive",
+    imageUrl: U("1618354691373-d851c5c3a990"),
+    notes: "Relaxed weekend fit",
+    createdAt: "2024-02-10T10:00:00Z",
+  },
+  {
+    id: "top-7",
+    name: "Red Crop Top",
+    category: "tops",
+    color: "Red",
+    imageUrl: U("1503342217505-b0a15ec515c7"),
+    notes: "Bold statement piece",
+    createdAt: "2024-02-11T10:00:00Z",
+  },
+  {
+    id: "top-8",
+    name: "Cream Knit Polo",
+    category: "tops",
+    color: "Cream",
+    imageUrl: U("1621184455862-c163dfb30e0f"),
+    notes: "Smart casual staple",
+    createdAt: "2024-02-12T10:00:00Z",
+  },
+
+  // ─── BOTTOMS ───────────────────────────────────────────
   {
     id: "bottom-1",
     name: "High-Waist Chinos",
     category: "bottoms",
     color: "Beige",
-    imageUrl: U("1593030761757-71fae45fa0e7"),
+    imageUrl: U("1594938298603-c8148c4dae35"),
     notes: "Versatile, goes with everything",
     createdAt: "2024-01-20T10:00:00Z",
   },
@@ -69,7 +103,7 @@ export const MOCK_CLOSET_ITEMS: ClothingItem[] = [
     name: "Dark Wash Jeans",
     category: "bottoms",
     color: "Blue",
-    imageUrl: U("1593030761757-71fae45fa0e7"),
+    imageUrl: U("1541099649105-f69ad21f3246"),
     notes: "Classic fit",
     createdAt: "2024-01-21T10:00:00Z",
   },
@@ -78,7 +112,7 @@ export const MOCK_CLOSET_ITEMS: ClothingItem[] = [
     name: "White Linen Trousers",
     category: "bottoms",
     color: "White",
-    imageUrl: U("1753741821179-f1509fb9844a"),
+    imageUrl: U("1506629082955-511b1aa562c8"),
     notes: "Summer staple",
     createdAt: "2024-01-22T10:00:00Z",
   },
@@ -87,16 +121,36 @@ export const MOCK_CLOSET_ITEMS: ClothingItem[] = [
     name: "Black Tailored Pants",
     category: "bottoms",
     color: "Black",
-    imageUrl: U("1753741821179-f1509fb9844a"),
+    imageUrl: U("1594938298603-c8148c4dae35"),
     notes: "Professional look",
     createdAt: "2024-01-23T10:00:00Z",
   },
+  {
+    id: "bottom-5",
+    name: "Pleated Midi Skirt",
+    category: "bottoms",
+    color: "Dusty Rose",
+    imageUrl: U("1583496661160-fb5886a773a9"),
+    notes: "Feminine and flowy",
+    createdAt: "2024-02-13T10:00:00Z",
+  },
+  {
+    id: "bottom-6",
+    name: "Cargo Shorts",
+    category: "bottoms",
+    color: "Khaki",
+    imageUrl: U("1591195853828-11db59a44f6b"),
+    notes: "Casual warm-weather pick",
+    createdAt: "2024-02-14T10:00:00Z",
+  },
+
+  // ─── DRESSES ───────────────────────────────────────────
   {
     id: "dress-1",
     name: "Floral Midi Dress",
     category: "dresses",
     color: "Multi",
-    imageUrl: U("1517970640957-23d07d5ed08c"),
+    imageUrl: U("1572804013309-59a88b7e92f1"),
     notes: "Perfect for brunch or dinner",
     createdAt: "2024-01-24T10:00:00Z",
   },
@@ -105,19 +159,68 @@ export const MOCK_CLOSET_ITEMS: ClothingItem[] = [
     name: "Little Black Dress",
     category: "dresses",
     color: "Black",
-    imageUrl: U("1715852700550-6436320162e6"),
+    imageUrl: U("1595777457583-95e059d581b8"),
     notes: "Essential for events",
     createdAt: "2024-01-25T10:00:00Z",
   },
   {
     id: "dress-3",
-    name: "Flowy Maxi Dress",
+    name: "Sage Wrap Dress",
     category: "dresses",
     color: "Sage",
-    imageUrl: U("1622080159549-11537bf939e6"),
-    notes: "Beachy, comfortable",
+    imageUrl: U("1515886657613-9f3515b0c78f"),
+    notes: "Flattering on all body types",
     createdAt: "2024-01-26T10:00:00Z",
   },
+  {
+    id: "dress-4",
+    name: "White Summer Dress",
+    category: "dresses",
+    color: "White",
+    imageUrl: U("1568252542512-9fe8fe9c87bb"),
+    notes: "Breezy and effortless",
+    createdAt: "2024-02-15T10:00:00Z",
+  },
+
+  // ─── OUTERWEAR ─────────────────────────────────────────
+  {
+    id: "outerwear-1",
+    name: "Denim Jacket",
+    category: "outerwear",
+    color: "Blue",
+    imageUrl: U("1551537482-f2075a1d41f2"),
+    notes: "Layers well over anything",
+    createdAt: "2024-01-31T10:00:00Z",
+  },
+  {
+    id: "outerwear-2",
+    name: "Lightweight Trench",
+    category: "outerwear",
+    color: "Beige",
+    imageUrl: U("1591047139829-d91aecb6caea"),
+    notes: "Travel essential",
+    createdAt: "2024-02-01T10:00:00Z",
+  },
+  {
+    id: "outerwear-3",
+    name: "Black Leather Jacket",
+    category: "outerwear",
+    color: "Black",
+    imageUrl: U("1551028719-00167b16eac5"),
+    notes: "Edgy, goes with everything",
+    createdAt: "2024-02-16T10:00:00Z",
+  },
+  {
+    id: "outerwear-4",
+    name: "Olive Bomber Jacket",
+    category: "outerwear",
+    color: "Olive",
+    imageUrl: U("1591047139829-d91aecb6caea"),
+    notes: "Casual layering piece",
+    createdAt: "2024-02-17T10:00:00Z",
+  },
+
+  // ─── SHOES ─────────────────────────────────────────────
   {
     id: "shoes-1",
     name: "White Sneakers",
@@ -138,11 +241,11 @@ export const MOCK_CLOSET_ITEMS: ClothingItem[] = [
   },
   {
     id: "shoes-3",
-    name: "Black Heels",
+    name: "Black Heeled Boots",
     category: "shoes",
     color: "Black",
-    imageUrl: U("1753741821179-f1509fb9844a"),
-    notes: "For formal occasions",
+    imageUrl: U("1543163521-1bf539c55dd2"),
+    notes: "Goes with dresses and jeans",
     createdAt: "2024-01-29T10:00:00Z",
   },
   {
@@ -150,34 +253,27 @@ export const MOCK_CLOSET_ITEMS: ClothingItem[] = [
     name: "Brown Loafers",
     category: "shoes",
     color: "Brown",
-    imageUrl: U("1593030761757-71fae45fa0e7"),
+    imageUrl: U("1614252369475-531eba835eb1"),
     notes: "Business casual",
     createdAt: "2024-01-30T10:00:00Z",
   },
   {
-    id: "outerwear-1",
-    name: "Denim Jacket",
-    category: "outerwear",
-    color: "Blue",
-    imageUrl: U("1727516299214-c4d54704b045"),
-    notes: "Layers well over anything",
-    createdAt: "2024-01-31T10:00:00Z",
+    id: "shoes-5",
+    name: "Canvas Slip-Ons",
+    category: "shoes",
+    color: "Navy",
+    imageUrl: U("1525966222134-fcfa99b8ae77"),
+    notes: "Easy on-and-off for travel",
+    createdAt: "2024-02-18T10:00:00Z",
   },
-  {
-    id: "outerwear-2",
-    name: "Lightweight Trench",
-    category: "outerwear",
-    color: "Beige",
-    imageUrl: U("1727516299214-c4d54704b045"),
-    notes: "Travel essential",
-    createdAt: "2024-02-01T10:00:00Z",
-  },
+
+  // ─── ACCESSORIES ───────────────────────────────────────
   {
     id: "accessories-1",
     name: "Straw Sun Hat",
     category: "accessories",
     color: "Natural",
-    imageUrl: U("1496747611176-843222e1e57c"),
+    imageUrl: U("1521369909029-2afed882baee"),
     notes: "Sun protection, vacation vibes",
     createdAt: "2024-02-02T10:00:00Z",
   },
@@ -186,7 +282,7 @@ export const MOCK_CLOSET_ITEMS: ClothingItem[] = [
     name: "Gold Hoop Earrings",
     category: "accessories",
     color: "Gold",
-    imageUrl: U("1511130558090-00af810c21b1"),
+    imageUrl: U("1535632066927-ab4627f0da1f"),
     notes: "Elevates any outfit",
     createdAt: "2024-02-03T10:00:00Z",
   },
@@ -195,8 +291,26 @@ export const MOCK_CLOSET_ITEMS: ClothingItem[] = [
     name: "Leather Crossbody Bag",
     category: "accessories",
     color: "Brown",
-    imageUrl: U("1496747611176-843222e1e57c"),
+    imageUrl: U("1548036328-c9fa89d128fa"),
     notes: "Hands-free for exploring",
     createdAt: "2024-02-04T10:00:00Z",
+  },
+  {
+    id: "accessories-4",
+    name: "Silk Scarf",
+    category: "accessories",
+    color: "Multi",
+    imageUrl: U("1584917865442-de89df76afd3"),
+    notes: "Tie on your bag or wear around neck",
+    createdAt: "2024-02-19T10:00:00Z",
+  },
+  {
+    id: "accessories-5",
+    name: "Sunglasses",
+    category: "accessories",
+    color: "Black",
+    imageUrl: U("1511499767150-a48a237f0083"),
+    notes: "UV protection with style",
+    createdAt: "2024-02-20T10:00:00Z",
   },
 ];

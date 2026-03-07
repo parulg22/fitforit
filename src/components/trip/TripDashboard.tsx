@@ -8,7 +8,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { ArrowLeft, MapPin, Calendar, Bookmark, Package, Sparkles } from "lucide-react";
+import { ArrowLeft, MapPin, Calendar, Bookmark, Package, Sparkles, ShoppingBag } from "lucide-react";
 import { Card } from "@/components/ui/Card";
 import { getTripById } from "@/lib/tripStore";
 import {
@@ -22,6 +22,7 @@ import { getClosetItems } from "@/lib/closetStore";
 import type { Trip, OutfitSuggestion, SavedOutfit } from "@/types";
 import { TryOnModal } from "@/components/tryon/TryOnModal";
 import type { ClothingItem } from "@/types";
+import { getShopSearchUrl } from "@/lib/shopLinks";
 
 const CATEGORY_LABELS: Record<string, string> = {
   tops: "Tops",
@@ -267,24 +268,34 @@ function OutfitSuggestionCard({
         </p>
         <div className="flex flex-wrap gap-4">
           {suggestion.items.map((item) => (
-            <button
-              key={item.id}
-              onClick={() => onTryOn(item)}
-              className="group flex flex-col items-center gap-2"
-            >
-              <div className="relative h-24 w-24 overflow-hidden rounded-lg bg-surface-100 ring-1 ring-surface-200 transition group-hover:scale-105 group-hover:ring-brand-500">
-                <Image
-                  src={item.imageUrl}
-                  alt={item.name}
-                  fill
-                  className="object-cover"
-                  sizes="96px"
-                />
-              </div>
-              <span className="max-w-[96px] truncate text-center text-xs text-surface-600 group-hover:text-surface-900">
-                {item.name}
-              </span>
-            </button>
+            <div key={item.id} className="flex flex-col items-center gap-2">
+              <button
+                onClick={() => onTryOn(item)}
+                className="group flex flex-col items-center gap-1"
+              >
+                <div className="relative h-24 w-24 overflow-hidden rounded-lg bg-surface-100 ring-1 ring-surface-200 transition group-hover:scale-105 group-hover:ring-brand-500">
+                  <Image
+                    src={item.imageUrl}
+                    alt={item.name}
+                    fill
+                    className="object-cover"
+                    sizes="96px"
+                  />
+                </div>
+                <span className="max-w-[96px] truncate text-center text-xs text-surface-600 group-hover:text-surface-900">
+                  {item.name}
+                </span>
+              </button>
+              <a
+                href={getShopSearchUrl(item)}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center gap-1 text-xs text-surface-500 hover:text-brand-600"
+              >
+                <ShoppingBag className="h-3 w-3" />
+                Shop
+              </a>
+            </div>
           ))}
         </div>
       </div>
@@ -318,24 +329,34 @@ function SavedOutfitCard({
       {/* Full outfit preview - larger images so you can see each piece */}
       <div className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-3">
         {outfitSuggestion.items.map((item) => (
-          <button
-            key={item.id}
-            onClick={() => onTryOn(item)}
-            className="group flex flex-col items-center gap-2"
-          >
-            <div className="relative aspect-square w-full min-w-0 overflow-hidden rounded-lg bg-surface-100 ring-1 ring-surface-200 transition group-hover:ring-2 group-hover:ring-brand-500">
-              <Image
-                src={item.imageUrl}
-                alt={item.name}
-                fill
-                className="object-cover transition group-hover:scale-105"
-                sizes="(max-width: 640px) 50vw, 120px"
-              />
-            </div>
-            <span className="max-w-full truncate text-center text-xs font-medium text-surface-700 group-hover:text-brand-600">
-              {item.name}
-            </span>
-          </button>
+          <div key={item.id} className="flex flex-col items-center gap-2">
+            <button
+              onClick={() => onTryOn(item)}
+              className="group flex flex-col items-center gap-1 w-full"
+            >
+              <div className="relative aspect-square w-full min-w-0 overflow-hidden rounded-lg bg-surface-100 ring-1 ring-surface-200 transition group-hover:ring-2 group-hover:ring-brand-500">
+                <Image
+                  src={item.imageUrl}
+                  alt={item.name}
+                  fill
+                  className="object-cover transition group-hover:scale-105"
+                  sizes="(max-width: 640px) 50vw, 120px"
+                />
+              </div>
+              <span className="max-w-full truncate text-center text-xs font-medium text-surface-700 group-hover:text-brand-600">
+                {item.name}
+              </span>
+            </button>
+            <a
+              href={getShopSearchUrl(item)}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center gap-1 text-xs text-surface-500 hover:text-brand-600"
+            >
+              <ShoppingBag className="h-3 w-3" />
+              Shop
+            </a>
+          </div>
         ))}
       </div>
       <p className="mt-3 text-xs text-surface-500">
