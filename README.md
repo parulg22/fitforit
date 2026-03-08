@@ -2,10 +2,6 @@
 
 **AI outfit planner for trips and events** — plan outfits, try on clothes virtually, and generate smart packing lists.
 
-A polished, portfolio-ready MVP built with Next.js, TypeScript, and Tailwind CSS.
-
-![FitForIt](https://picsum.photos/seed/fitforit/800/400)
-
 ## Features
 
 - **Landing page** — Clear value prop: AI outfit planner, virtual try-on, packing list generator
@@ -14,14 +10,6 @@ A polished, portfolio-ready MVP built with Next.js, TypeScript, and Tailwind CSS
 - **Rule-based outfit engine** — Suggestions grouped by occasion (travel day, brunch, dinner, event, etc.)
 - **Trip dashboard** — Itinerary-style outfit suggestions, save outfits, auto-generated packing list
 - **AI virtual try-on** — Upload your photo, try on with Replicate IDM-VTON (optional, requires API key)
-
-## Tech Stack
-
-- **Next.js 14** (App Router)
-- **TypeScript**
-- **Tailwind CSS**
-- **Lucide React** (icons)
-- Mock data (JSON / sessionStorage) — no database required for demo
 
 ## Quick Start
 
